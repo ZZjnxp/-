@@ -1,32 +1,31 @@
-#include<stdio.h>
-#include<time.h>
-#include<windows.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <windows.h>
+#include <stdlib.h>
 
 #include <string.h>
 #include <conio.h>
 
-
 #define U 1
 #define D 2
 #define L 3
-#define R 4       //ÉßµÄ×´Ì¬£¬U£ºÉÏ £»D£ºÏÂ£»L:×ó R£ºÓÒ
+#define R 4 // è›‡çš„çŠ¶æ€ï¼ŒUï¼šä¸Š ï¼›Dï¼šä¸‹ï¼›L:å·¦ Rï¼šå³
 
+#define MAX_USERS 100           // æœ€å¤§ç”¨æˆ·æ•°
+#define LOG_FILE "user_log.txt" // ç”¨æˆ·æ—¥å¿—æ–‡ä»¶è·¯å¾„
+time_t start_time;              // æ·»åŠ å…¨å±€å˜é‡
 
+FILE *log_file; // ç”¨æˆ·æ—¥å¿—æ–‡ä»¶æŒ‡é’ˆ
 
-#define MAX_USERS 100 // ×î´óÓÃ»§Êı
-#define LOG_FILE "user_log.txt" // ÓÃ»§ÈÕÖ¾ÎÄ¼şÂ·¾¶
-time_t start_time; // Ìí¼ÓÈ«¾Ö±äÁ¿
-
-FILE *log_file; // ÓÃ»§ÈÕÖ¾ÎÄ¼şÖ¸Õë
-
-//¶¨ÒåÓÃ»§±íºÍÓÃ»§ÈÕÖ¾µÄ½á¹¹
-typedef struct {
+// å®šä¹‰ç”¨æˆ·è¡¨å’Œç”¨æˆ·æ—¥å¿—çš„ç»“æ„
+typedef struct
+{
     char username[20];
     char password[20];
 } User;
 
-typedef struct {
+typedef struct
+{
     int id;
     char username[20];
     time_t start_time;
@@ -34,25 +33,24 @@ typedef struct {
     int score;
 } UserLog;
 
-User users[MAX_USERS]; // ÓÃ»§±í
-int num_users = 0; // µ±Ç°ÓÃ»§Êı
+User users[MAX_USERS]; // ç”¨æˆ·è¡¨
+int num_users = 0;     // å½“å‰ç”¨æˆ·æ•°
 
-
-typedef struct SNAKE //ÉßÉíµÄÒ»¸ö½Úµã
+typedef struct SNAKE // è›‡èº«çš„ä¸€ä¸ªèŠ‚ç‚¹
 {
     int x;
     int y;
-    struct SNAKE* next;
-}snake;
+    struct SNAKE *next;
+} snake;
 
-//È«¾Ö±äÁ¿//
-int score = 0, add = 10;//×ÜµÃ·ÖÓëÃ¿´Î³ÔÊ³ÎïµÃ·Ö¡£
-int status, sleeptime = 200;//Ã¿´ÎÔËĞĞµÄÊ±¼ä¼ä¸ô
-snake* head, * food;//ÉßÍ·Ö¸Õë£¬Ê³ÎïÖ¸Õë
-snake* q;//±éÀúÉßµÄÊ±ºòÓÃµ½µÄÖ¸Õë
-int endgamestatus = 0; //ÓÎÏ·½áÊøµÄÇé¿ö£¬1£º×²µ½Ç½£»2£ºÒ§µ½×Ô¼º£»3£ºÖ÷¶¯ÍË³öÓÎÏ·¡£
+// å…¨å±€å˜é‡//
+int score = 0, add = 10;     // æ€»å¾—åˆ†ä¸æ¯æ¬¡åƒé£Ÿç‰©å¾—åˆ†ã€‚
+int status, sleeptime = 200; // æ¯æ¬¡è¿è¡Œçš„æ—¶é—´é—´éš”
+snake *head, *food;          // è›‡å¤´æŒ‡é’ˆï¼Œé£Ÿç‰©æŒ‡é’ˆ
+snake *q;                    // éå†è›‡çš„æ—¶å€™ç”¨åˆ°çš„æŒ‡é’ˆ
+int endgamestatus = 0;       // æ¸¸æˆç»“æŸçš„æƒ…å†µï¼Œ1ï¼šæ’åˆ°å¢™ï¼›2ï¼šå’¬åˆ°è‡ªå·±ï¼›3ï¼šä¸»åŠ¨é€€å‡ºæ¸¸æˆã€‚
 
-//ÉùÃ÷È«²¿º¯Êı//
+// å£°æ˜å…¨éƒ¨å‡½æ•°//
 void Pos();
 void creatMap();
 void initsnake();
@@ -65,7 +63,6 @@ void gamecircle();
 void welcometogame();
 void endgame();
 void gamestart();
-
 void registerUser();
 int loginUser();
 void openLogFile();
@@ -74,14 +71,7 @@ void logUserGame();
 void gametip();
 void gameF5();
 
-
-
-
-
-
-
-
-void Pos(int x, int y)//ÉèÖÃ¹â±êÎ»ÖÃ
+void Pos(int x, int y) // è®¾ç½®å…‰æ ‡ä½ç½®
 {
     COORD pos;
     HANDLE hOutput;
@@ -91,52 +81,52 @@ void Pos(int x, int y)//ÉèÖÃ¹â±êÎ»ÖÃ
     SetConsoleCursorPosition(hOutput, pos);
 }
 
-void creatMap()//´´½¨µØÍ¼
+void creatMap() // åˆ›å»ºåœ°å›¾
 {
     int i;
-    for (i = 0; i < 58; i += 2)//´òÓ¡ÉÏÏÂ±ß¿ò
+    for (i = 0; i < 58; i += 2) // æ‰“å°ä¸Šä¸‹è¾¹æ¡†
     {
         Pos(i, 0);
-        printf("¡ö");
+        printf("â– ");
         Pos(i, 26);
-        printf("¡ö");
+        printf("â– ");
     }
-    for (i = 1; i < 26; i++)//´òÓ¡×óÓÒ±ß¿ò
+    for (i = 1; i < 26; i++) // æ‰“å°å·¦å³è¾¹æ¡†
     {
         Pos(0, i);
-        printf("¡ö");
+        printf("â– ");
         Pos(56, i);
-        printf("¡ö");
+        printf("â– ");
     }
 }
 
-void initsnake()//³õÊ¼»¯ÉßÉí
+void initsnake() // åˆå§‹åŒ–è›‡èº«
 {
-    snake* tail;
+    snake *tail;
     int i;
-    tail = (snake*)malloc(sizeof(snake));//´ÓÉßÎ²¿ªÊ¼£¬Í·²å·¨£¬ÒÔx,yÉè¶¨¿ªÊ¼µÄÎ»ÖÃ//
+    tail = (snake *)malloc(sizeof(snake)); // ä»è›‡å°¾å¼€å§‹ï¼Œå¤´æ’æ³•ï¼Œä»¥x,yè®¾å®šå¼€å§‹çš„ä½ç½®//
     tail->x = 24;
     tail->y = 5;
     tail->next = NULL;
     for (i = 1; i <= 4; i++)
     {
-        head = (snake*)malloc(sizeof(snake));
+        head = (snake *)malloc(sizeof(snake));
         head->next = tail;
         head->x = 24 + 2 * i;
         head->y = 5;
         tail = head;
     }
-    while (tail != NULL)//´ÓÍ·µ½Îª£¬Êä³öÉßÉí
+    while (tail != NULL) // ä»å¤´åˆ°ä¸ºï¼Œè¾“å‡ºè›‡èº«
     {
         Pos(tail->x, tail->y);
-        printf("¡ö");
+        printf("â– ");
         tail = tail->next;
     }
 }
 
-int biteself()//ÅĞ¶ÏÊÇ·ñÒ§µ½ÁË×Ô¼º
+int biteself() // åˆ¤æ–­æ˜¯å¦å’¬åˆ°äº†è‡ªå·±
 {
-    snake* self;
+    snake *self;
     self = head->next;
     while (self != NULL)
     {
@@ -149,33 +139,37 @@ int biteself()//ÅĞ¶ÏÊÇ·ñÒ§µ½ÁË×Ô¼º
     return 0;
 }
 
-void createfood() {
-    snake* food_1;
+void createfood()
+{
+    snake *food_1;
     srand((unsigned)time(NULL));
-    food_1 = (snake*)malloc(sizeof(snake));
-    while (1) {
+    food_1 = (snake *)malloc(sizeof(snake));
+    while (1)
+    {
         food_1->x = rand() % 52 + 2;
         food_1->y = rand() % 24 + 1;
         q = head;
         int food_overlap = 0; // Flag to check if food overlaps with snake
-        while (q != NULL) {
-            if (q->x == food_1->x && q->y == food_1->y) {
+        while (q != NULL)
+        {
+            if (q->x == food_1->x && q->y == food_1->y)
+            {
                 food_overlap = 1;
                 break;
             }
             q = q->next;
         }
-        if (!food_overlap) {
+        if (!food_overlap)
+        {
             break; // If no overlap, break the loop
         }
     }
     Pos(food_1->x, food_1->y);
     food = food_1;
-    printf("¡ö"); // Display the food
+    printf("â– "); // Display the food
 }
 
-
-void cantcrosswall()//²»ÄÜ´©Ç½
+void cantcrosswall() // ä¸èƒ½ç©¿å¢™
 {
     if (head->x == 0 || head->x == 56 || head->y == 0 || head->y == 26)
     {
@@ -184,17 +178,17 @@ void cantcrosswall()//²»ÄÜ´©Ç½
     }
 }
 
-void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
+void snakemove() // è›‡å‰è¿›,ä¸ŠU,ä¸‹D,å·¦L,å³R
 {
-    snake* nexthead;
+    snake *nexthead;
     cantcrosswall();
 
-    nexthead = (snake*)malloc(sizeof(snake));
+    nexthead = (snake *)malloc(sizeof(snake));
     if (status == U)
     {
         nexthead->x = head->x;
         nexthead->y = head->y - 1;
-        if (nexthead->x == food->x && nexthead->y == food->y)//Èç¹ûÏÂÒ»¸öÓĞÊ³Îï//
+        if (nexthead->x == food->x && nexthead->y == food->y) // å¦‚æœä¸‹ä¸€ä¸ªæœ‰é£Ÿç‰©//
         {
             nexthead->next = head;
             head = nexthead;
@@ -202,13 +196,13 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             score = score + add;
             createfood();
         }
-        else                                               //Èç¹ûÃ»ÓĞÊ³Îï//
+        else // å¦‚æœæ²¡æœ‰é£Ÿç‰©//
         {
             nexthead->next = head;
             head = nexthead;
@@ -216,7 +210,7 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q->next->next != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             Pos(q->next->x, q->next->y);
@@ -229,7 +223,7 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
     {
         nexthead->x = head->x;
         nexthead->y = head->y + 1;
-        if (nexthead->x == food->x && nexthead->y == food->y)  //ÓĞÊ³Îï
+        if (nexthead->x == food->x && nexthead->y == food->y) // æœ‰é£Ÿç‰©
         {
             nexthead->next = head;
             head = nexthead;
@@ -237,13 +231,13 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             score = score + add;
             createfood();
         }
-        else                               //Ã»ÓĞÊ³Îï
+        else // æ²¡æœ‰é£Ÿç‰©
         {
             nexthead->next = head;
             head = nexthead;
@@ -251,7 +245,7 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q->next->next != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             Pos(q->next->x, q->next->y);
@@ -264,7 +258,7 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
     {
         nexthead->x = head->x - 2;
         nexthead->y = head->y;
-        if (nexthead->x == food->x && nexthead->y == food->y)//ÓĞÊ³Îï
+        if (nexthead->x == food->x && nexthead->y == food->y) // æœ‰é£Ÿç‰©
         {
             nexthead->next = head;
             head = nexthead;
@@ -272,13 +266,13 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             score = score + add;
             createfood();
         }
-        else                                //Ã»ÓĞÊ³Îï
+        else // æ²¡æœ‰é£Ÿç‰©
         {
             nexthead->next = head;
             head = nexthead;
@@ -286,7 +280,7 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q->next->next != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             Pos(q->next->x, q->next->y);
@@ -299,7 +293,7 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
     {
         nexthead->x = head->x + 2;
         nexthead->y = head->y;
-        if (nexthead->x == food->x && nexthead->y == food->y)//ÓĞÊ³Îï
+        if (nexthead->x == food->x && nexthead->y == food->y) // æœ‰é£Ÿç‰©
         {
             nexthead->next = head;
             head = nexthead;
@@ -307,13 +301,13 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             score = score + add;
             createfood();
         }
-        else                                         //Ã»ÓĞÊ³Îï
+        else // æ²¡æœ‰é£Ÿç‰©
         {
             nexthead->next = head;
             head = nexthead;
@@ -321,7 +315,7 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             while (q->next->next != NULL)
             {
                 Pos(q->x, q->y);
-                printf("¡ö");
+                printf("â– ");
                 q = q->next;
             }
             Pos(q->next->x, q->next->y);
@@ -330,14 +324,14 @@ void snakemove()//ÉßÇ°½ø,ÉÏU,ÏÂD,×óL,ÓÒR
             q->next = NULL;
         }
     }
-    if (biteself() == 1)       //ÅĞ¶ÏÊÇ·ñ»áÒ§µ½×Ô¼º
+    if (biteself() == 1) // åˆ¤æ–­æ˜¯å¦ä¼šå’¬åˆ°è‡ªå·±
     {
         endgamestatus = 2;
         endgame();
     }
 }
 
-void pause()//ÔİÍ£
+void pause() // æš‚åœ
 {
     while (1)
     {
@@ -346,29 +340,28 @@ void pause()//ÔİÍ£
         {
             break;
         }
-
     }
 }
 
-void gamecircle()//¿ØÖÆÓÎÏ·
+void gamecircle() // æ§åˆ¶æ¸¸æˆ
 {
 
     Pos(64, 15);
-    printf("²»ÄÜ´©Ç½£¬²»ÄÜÒ§µ½×Ô¼º\n");
+    printf("ä¸èƒ½ç©¿å¢™ï¼Œä¸èƒ½å’¬åˆ°è‡ªå·±\n");
     Pos(64, 16);
-    printf("ÓÃ¡ü.¡ı.¡û.¡ú·Ö±ğ¿ØÖÆÉßµÄÒÆ¶¯.");
+    printf("ç”¨â†‘.â†“.â†.â†’åˆ†åˆ«æ§åˆ¶è›‡çš„ç§»åŠ¨.");
     Pos(64, 17);
-    printf("F1 Îª¼ÓËÙ£¬F2 Îª¼õËÙ\n");
+    printf("F1 ä¸ºåŠ é€Ÿï¼ŒF2 ä¸ºå‡é€Ÿ\n");
     Pos(64, 18);
-    printf("ESC £ºÍË³öÓÎÏ·.space£ºÔİÍ£ÓÎÏ·.");
+    printf("ESC ï¼šé€€å‡ºæ¸¸æˆ.spaceï¼šæš‚åœæ¸¸æˆ.");
     Pos(64, 20);
     status = R;
     while (1)
     {
         Pos(64, 10);
-        printf("µÃ·Ö£º%d  ", score);
+        printf("å¾—åˆ†ï¼š%d  ", score);
         Pos(64, 11);
-        printf("Ã¿¸öÊ³ÎïµÃ·Ö£º%d·Ö", add);
+        printf("æ¯ä¸ªé£Ÿç‰©å¾—åˆ†ï¼š%dåˆ†", add);
         if (GetAsyncKeyState(VK_UP) && status != D)
         {
             status = U;
@@ -402,7 +395,7 @@ void gamecircle()//¿ØÖÆÓÎÏ·
                 add = add + 2;
                 if (sleeptime == 320)
                 {
-                    add = 2;//·ÀÖ¹¼õµ½1Ö®ºóÔÙ¼Ó»ØÀ´ÓĞ´í
+                    add = 2; // é˜²æ­¢å‡åˆ°1ä¹‹åå†åŠ å›æ¥æœ‰é”™
                 }
             }
         }
@@ -414,7 +407,7 @@ void gamecircle()//¿ØÖÆÓÎÏ·
                 add = add - 2;
                 if (sleeptime == 350)
                 {
-                    add = 1;  //±£Ö¤×îµÍ·ÖÎª1
+                    add = 1; // ä¿è¯æœ€ä½åˆ†ä¸º1
                 }
             }
         }
@@ -424,24 +417,24 @@ void gamecircle()//¿ØÖÆÓÎÏ·
     logUserGame(num_users, users[num_users - 1].username, start_time, time(NULL) - start_time, score);
 }
 
-void welcometogame()//¿ªÊ¼½çÃæ
+void welcometogame() // å¼€å§‹ç•Œé¢
 {
     Pos(40, 12);
-    printf("»¶Ó­À´µ½Ì°Ê³ÉßÓÎÏ·£¡");
+    printf("æ¬¢è¿æ¥åˆ°è´ªé£Ÿè›‡æ¸¸æˆï¼");
     Pos(40, 25);
     system("pause");
     system("cls");
     Pos(25, 12);
-    printf("ÓÃ¡ü.¡ı.¡û.¡ú·Ö±ğ¿ØÖÆÉßµÄÒÆ¶¯£¬ F1 Îª¼ÓËÙ£¬2 Îª¼õËÙ\n");
+    printf("ç”¨â†‘.â†“.â†.â†’åˆ†åˆ«æ§åˆ¶è›‡çš„ç§»åŠ¨ï¼Œ F1 ä¸ºåŠ é€Ÿï¼Œ2 ä¸ºå‡é€Ÿ\n");
     Pos(25, 13);
-    printf("¼ÓËÙ½«ÄÜµÃµ½¸ü¸ßµÄ·ÖÊı¡£\n");
+    printf("åŠ é€Ÿå°†èƒ½å¾—åˆ°æ›´é«˜çš„åˆ†æ•°ã€‚\n");
     system("pause");
     system("cls");
 }
 
-void gamestart()//ÓÎÏ·³õÊ¼»¯
+void gamestart() // æ¸¸æˆåˆå§‹åŒ–
 {
-    start_time = time(NULL); // ÔÚÓÎÏ·¿ªÊ¼Ê±¼ÇÂ¼Ê±¼ä
+    start_time = time(NULL); // åœ¨æ¸¸æˆå¼€å§‹æ—¶è®°å½•æ—¶é—´
     system("mode con cols=100 lines=30");
     welcometogame();
     creatMap();
@@ -449,80 +442,91 @@ void gamestart()//ÓÎÏ·³õÊ¼»¯
     createfood();
 }
 
-
-//×¢²á¹¦ÄÜ
-void registerUser() {
-    printf("ÇëÊäÈëÓÃ»§Ãû£º");
+// æ³¨å†ŒåŠŸèƒ½
+void registerUser()
+{
+    printf("è¯·è¾“å…¥ç”¨æˆ·åï¼š");
     scanf("%s", users[num_users].username);
-    printf("ÇëÊäÈëÃÜÂë£º");
+    printf("è¯·è¾“å…¥å¯†ç ï¼š");
     scanf("%s", users[num_users].password);
-    printf("×¢²á³É¹¦£¡\n");
+    printf("æ³¨å†ŒæˆåŠŸï¼\n");
     num_users++;
 }
 
-
-//µÇÂ¼¹¦ÄÜ
-int loginUser() {
+// ç™»å½•åŠŸèƒ½
+int loginUser()
+{
     char username[20];
     char password[20];
-    printf("ÇëÊäÈëÓÃ»§Ãû£º");
+    printf("è¯·è¾“å…¥ç”¨æˆ·åï¼š");
     scanf("%s", username);
-    printf("ÇëÊäÈëÃÜÂë£º");
+    printf("è¯·è¾“å…¥å¯†ç ï¼š");
     scanf("%s", password);
     int i = 0;
-    for (i = 0; i < num_users; i++) {
-        if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0) {
-            printf("µÇÂ¼³É¹¦£¡\n");
+    for (i = 0; i < num_users; i++)
+    {
+        if (strcmp(username, users[i].username) == 0 && strcmp(password, users[i].password) == 0)
+        {
+            printf("ç™»å½•æˆåŠŸï¼\n");
             return 1;
         }
     }
-    printf("ÓÃ»§Ãû»òÃÜÂë´íÎó£¡\n");
+    printf("ç”¨æˆ·åæˆ–å¯†ç é”™è¯¯ï¼\n");
     return 0;
 }
 
-
-
-
-//´ò¿ªÓÃ»§ÈÕÖ¾ÎÄ¼ş
-void openLogFile() {
+// æ‰“å¼€ç”¨æˆ·æ—¥å¿—æ–‡ä»¶
+void openLogFile()
+{
     log_file = fopen("user_log.txt", "a");
-    if (log_file == NULL) {
-        printf("ÎŞ·¨´ò¿ªÓÃ»§ÈÕÖ¾ÎÄ¼ş£¡\n");
+    if (log_file == NULL)
+    {
+        printf("æ— æ³•æ‰“å¼€ç”¨æˆ·æ—¥å¿—æ–‡ä»¶ï¼\n");
         exit(1);
     }
 }
 
-//¹Ø±ÕÓÃ»§ÈÕÖ¾ÎÄ¼ş
-void closeLogFile() {
+// å…³é—­ç”¨æˆ·æ—¥å¿—æ–‡ä»¶
+void closeLogFile()
+{
     fclose(log_file);
 }
 
-//¼ÇÂ¼ÓÃ»§ÓÎÏ·ÈÕÖ¾
-void logUserGame(int id, const char *username, time_t start_time, int duration, int score) {
-    // ½«Ê±¼ä×ª»»Îª×Ö·û´®ĞÎÊ½
-    char* time_str = asctime(localtime(&start_time));
-    // Ğ´ÈëÈÕÖ¾ÎÄ¼ş
+// è®°å½•ç”¨æˆ·æ¸¸æˆæ—¥å¿—
+void logUserGame(int id, const char *username, time_t start_time, int duration, int score)
+{
+    // å°†æ—¶é—´è½¬æ¢ä¸ºå­—ç¬¦ä¸²å½¢å¼
+    char *time_str = asctime(localtime(&start_time));
+    // å†™å…¥æ—¥å¿—æ–‡ä»¶
     fprintf(log_file, "%d\t%s\t%s\t%d\t%d\n", id, username, time_str, duration, score);
 }
 
-//Ìí¼ÓÁËÓÃ»§×¢²á»òµÇÂ¼µÄÁ÷³Ì
-void gametip() {
-    openLogFile(); // ´ò¿ªÓÃ»§ÈÕÖ¾ÎÄ¼ş
-    printf("»¶Ó­À´µ½Ì°Ê³ÉßÓÎÏ·£¡\n");
+// æ·»åŠ äº†ç”¨æˆ·æ³¨å†Œæˆ–ç™»å½•çš„æµç¨‹
+void gametip()
+{
+    openLogFile(); // æ‰“å¼€ç”¨æˆ·æ—¥å¿—æ–‡ä»¶
+    printf("æ¬¢è¿æ¥åˆ°è´ªé£Ÿè›‡æ¸¸æˆï¼\n");
 
-    // ÓÃ»§×¢²á»òµÇÂ¼
-    while (1) {
-        printf("ÇëÑ¡Ôñ²Ù×÷£º1. ×¢²á  2. µÇÂ¼\n");
+    // ç”¨æˆ·æ³¨å†Œæˆ–ç™»å½•
+    while (1)
+    {
+        printf("è¯·é€‰æ‹©æ“ä½œï¼š1. æ³¨å†Œ  2. ç™»å½•\n");
         int choice;
         scanf("%d", &choice);
-        if (choice == 1) {
+        if (choice == 1)
+        {
             registerUser();
-        } else if (choice == 2) {
-            if (loginUser()) {
+        }
+        else if (choice == 2)
+        {
+            if (loginUser())
+            {
                 break;
             }
-        } else {
-            printf("ÎŞĞ§µÄ²Ù×÷£¡\n");
+        }
+        else
+        {
+            printf("æ— æ•ˆçš„æ“ä½œï¼\n");
         }
     }
 
@@ -531,112 +535,113 @@ void gametip() {
     createfood();
 }
 
-//ÔÚÓÎÏ·Ö÷½çÃæÏÔÊ¾µ±Ç°ÕıÔÚÓÎÏ·ÖĞµÄÓÃ»§£»Ìí¼ÓÁË°´F5ÏÔÊ¾ÓÎÏ·ÓÃ»§ÈÕÖ¾µÄ¹¦ÄÜ£¬°´ÏÂF5¼üºóÇåÆÁÏÔÊ¾ÓÃ»§ÈÕÖ¾¡£
-void gameF5() {
+// åœ¨æ¸¸æˆä¸»ç•Œé¢æ˜¾ç¤ºå½“å‰æ­£åœ¨æ¸¸æˆä¸­çš„ç”¨æˆ·ï¼›æ·»åŠ äº†æŒ‰F5æ˜¾ç¤ºæ¸¸æˆç”¨æˆ·æ—¥å¿—çš„åŠŸèƒ½ï¼ŒæŒ‰ä¸‹F5é”®åæ¸…å±æ˜¾ç¤ºç”¨æˆ·æ—¥å¿—ã€‚
+void gameF5()
+{
     system("cls");
-    printf("*********µ±Ç°ÓÃ»§£º%sÕıÔÚÓÎÏ·ÖĞ*********\n", users[num_users - 1].username);
-    printf("°´F5ÏÔÊ¾ÓÎÏ·ÓÃ»§ÈÕÖ¾\n");
+    printf("*********å½“å‰ç”¨æˆ·ï¼š%sæ­£åœ¨æ¸¸æˆä¸­*********\n", users[num_users - 1].username);
+    printf("æŒ‰F5æ˜¾ç¤ºæ¸¸æˆç”¨æˆ·æ—¥å¿—\n");
 
-    if (GetAsyncKeyState(VK_F5) & 0x8000) { // Check if F5 key is pressed
+    if (GetAsyncKeyState(VK_F5) & 0x8000)
+    { // Check if F5 key is pressed
         system("cls");
-        printf("ÓÎÏ·ÓÃ»§ÈÕÖ¾£º\n");
+        printf("æ¸¸æˆç”¨æˆ·æ—¥å¿—ï¼š\n");
         // Open user log file for reading
         FILE *user_log_file = fopen("user_log.txt", "r");
-        if (user_log_file == NULL) {
-            printf("ÎŞ·¨´ò¿ªÓÃ»§ÈÕÖ¾ÎÄ¼ş£¡\n");
+        if (user_log_file == NULL)
+        {
+            printf("æ— æ³•æ‰“å¼€ç”¨æˆ·æ—¥å¿—æ–‡ä»¶ï¼\n");
             return;
         }
         // Read and display user log file contents
         char line[100];
-        while (fgets(line, sizeof(line), user_log_file)) {
+        while (fgets(line, sizeof(line), user_log_file))
+        {
             printf("%s", line);
         }
         fclose(user_log_file); // Close user log file
-        printf("\n°´ÈÎÒâ¼ü¼ÌĞø...\n");
+        printf("\næŒ‰ä»»æ„é”®ç»§ç»­...\n");
         _getch();
     }
 }
 
-
-
-
-//·µ»ØµÇÂ¼Ò³Ãæ»òÍË³ö
-void returnToMenuOrExit() {
-    printf("\nÓÎÏ·½áÊø£¬ÄúÒª·µ»ØµÇÂ¼×¢²áÒ³Ãæ»¹ÊÇÍË³öÓÎÏ·£¿\n");
-    printf("1. ·µ»ØµÇÂ¼×¢²áÒ³Ãæ\n");
-    printf("2. ÍË³öÓÎÏ·\n");
+// è¿”å›ç™»å½•é¡µé¢æˆ–é€€å‡º
+void returnToMenuOrExit()
+{
+    printf("\næ¸¸æˆç»“æŸï¼Œæ‚¨è¦è¿”å›ç™»å½•æ³¨å†Œé¡µé¢è¿˜æ˜¯é€€å‡ºæ¸¸æˆï¼Ÿ\n");
+    printf("1. è¿”å›ç™»å½•æ³¨å†Œé¡µé¢\n");
+    printf("2. é€€å‡ºæ¸¸æˆ\n");
     int choice;
     scanf("%d", &choice);
-    switch (choice) {
-        case 1:
-            // ·µ»ØµÇÂ¼×¢²áÒ³Ãæ
-            system("cls");
-            main();
-            break;
-        case 2:
-            // ÍË³öÓÎÏ·
-            exit(0);
-            break;
-        default:
-            printf("ÎŞĞ§µÄÑ¡Ôñ£¬³ÌĞòÍË³ö¡£\n");
-            exit(1);
+    switch (choice)
+    {
+    case 1:
+        // è¿”å›ç™»å½•æ³¨å†Œé¡µé¢
+        system("cls");
+        main();
+        break;
+    case 2:
+        // é€€å‡ºæ¸¸æˆ
+        exit(0);
+        break;
+    default:
+        printf("æ— æ•ˆçš„é€‰æ‹©ï¼Œç¨‹åºé€€å‡ºã€‚\n");
+        exit(1);
     }
 }
 
-
-//ÓÎÏ·½áÊø
-//ĞÂÔöµÃ·ÖÌáÊ¾£¬ÓÎÏ·ÓÃ»§±íÕ¹Ê¾
-void endgame() {
-    int duration = time(NULL) - start_time; // ¼ÆËãÓÎÏ·³ÖĞøÊ±¼ä
+// æ¸¸æˆç»“æŸ
+// æ–°å¢å¾—åˆ†æç¤ºï¼Œæ¸¸æˆç”¨æˆ·è¡¨å±•ç¤º
+void endgame()
+{
+    int duration = time(NULL) - start_time; // è®¡ç®—æ¸¸æˆæŒç»­æ—¶é—´
     UserLog log;
-    log.id = num_users; // ¼ÙÉèµ±Ç°ÓÃ»§µÄIDÎªÓÃ»§±íµÄ´óĞ¡
-    strcpy(log.username, users[num_users - 1].username); // ¼ÇÂ¼µ±Ç°ÓÃ»§µÄÓÃ»§Ãû
+    log.id = num_users;                                  // å‡è®¾å½“å‰ç”¨æˆ·çš„IDä¸ºç”¨æˆ·è¡¨çš„å¤§å°
+    strcpy(log.username, users[num_users - 1].username); // è®°å½•å½“å‰ç”¨æˆ·çš„ç”¨æˆ·å
     log.start_time = start_time;
     log.duration = duration;
     log.score = score;
-    printf("ÓÎÏ·ÈÕÖ¾£º\n");
-    printf("ÓÃ»§ID£º%d£¬ÓÃ»§Ãû£º%s£¬¿ªÊ¼Ê±¼ä£º%s£¬³ÖĞøÊ±³¤£º%dÃë£¬µÃ·Ö£º%d\n",
+    printf("æ¸¸æˆæ—¥å¿—ï¼š\n");
+    printf("ç”¨æˆ·IDï¼š%dï¼Œç”¨æˆ·åï¼š%sï¼Œå¼€å§‹æ—¶é—´ï¼š%sï¼ŒæŒç»­æ—¶é•¿ï¼š%dç§’ï¼Œå¾—åˆ†ï¼š%d\n",
            log.id, log.username, asctime(localtime(&log.start_time)), log.duration, log.score);
     fprintf(log_file, "%d\t%s\t%s\t%d\t%d\n", log.id, log.username, asctime(localtime(&log.start_time)), log.duration, log.score);
 
-    // ÓÎÏ·½áÊøºóÌáÊ¾ÓÃ»§Ñ¡Ôñ·µ»ØµÇÂ¼×¢²áÒ³Ãæ»òÍË³öÓÎÏ·
+    // æ¸¸æˆç»“æŸåæç¤ºç”¨æˆ·é€‰æ‹©è¿”å›ç™»å½•æ³¨å†Œé¡µé¢æˆ–é€€å‡ºæ¸¸æˆ
     returnToMenuOrExit();
 }
 
-
-
-
-int main() {
+int main()
+{
     gametip();
     gamestart();
-    while (1) {
-        gameF5(); // ÓÎÏ·½øĞĞÖĞÒ²ĞèÒª¼ì²â°´¼üÒÔÏÔÊ¾ÓÎÏ·ÓÃ»§ÈÕÖ¾
+    while (1)
+    {
+        gameF5(); // æ¸¸æˆè¿›è¡Œä¸­ä¹Ÿéœ€è¦æ£€æµ‹æŒ‰é”®ä»¥æ˜¾ç¤ºæ¸¸æˆç”¨æˆ·æ—¥å¿—
         gamecircle();
         endgame();
-        // ÓÎÏ·½áÊøºóÌáÊ¾ÓÃ»§Ñ¡Ôñ·µ»ØµÇÂ¼×¢²áÒ³Ãæ»òÍË³öÓÎÏ·
-        printf("ÓÎÏ·½áÊø£¬ÄúÒª·µ»ØµÇÂ¼×¢²áÒ³Ãæ»¹ÊÇÍË³öÓÎÏ·£¿\n");
-        printf("1. ·µ»ØµÇÂ¼×¢²áÒ³Ãæ\n");
-        printf("2. ÍË³öÓÎÏ·\n");
+        // æ¸¸æˆç»“æŸåæç¤ºç”¨æˆ·é€‰æ‹©è¿”å›ç™»å½•æ³¨å†Œé¡µé¢æˆ–é€€å‡ºæ¸¸æˆ
+        printf("æ¸¸æˆç»“æŸï¼Œæ‚¨è¦è¿”å›ç™»å½•æ³¨å†Œé¡µé¢è¿˜æ˜¯é€€å‡ºæ¸¸æˆï¼Ÿ\n");
+        printf("1. è¿”å›ç™»å½•æ³¨å†Œé¡µé¢\n");
+        printf("2. é€€å‡ºæ¸¸æˆ\n");
         int choice;
         scanf("%d", &choice);
-        switch (choice) {
-            case 1:
-                // ·µ»ØµÇÂ¼×¢²áÒ³Ãæ
-                system("cls");
-                gametip();
-                break;
-            case 2:
-                // ÍË³öÓÎÏ·
-                closeLogFile(); // ¹Ø±ÕÓÃ»§ÈÕÖ¾ÎÄ¼ş
-                exit(0);
-                break;
-            default:
-                printf("ÎŞĞ§µÄÑ¡Ôñ£¬³ÌĞòÍË³ö¡£\n");
-                closeLogFile(); // ¹Ø±ÕÓÃ»§ÈÕÖ¾ÎÄ¼ş
-                exit(1);
+        switch (choice)
+        {
+        case 1:
+            // è¿”å›ç™»å½•æ³¨å†Œé¡µé¢
+            system("cls");
+            gametip();
+            break;
+        case 2:
+            // é€€å‡ºæ¸¸æˆ
+            closeLogFile(); // å…³é—­ç”¨æˆ·æ—¥å¿—æ–‡ä»¶
+            exit(0);
+            break;
+        default:
+            printf("æ— æ•ˆçš„é€‰æ‹©ï¼Œç¨‹åºé€€å‡ºã€‚\n");
+            closeLogFile(); // å…³é—­ç”¨æˆ·æ—¥å¿—æ–‡ä»¶
+            exit(1);
         }
     }
     return 0;
 }
-
-
